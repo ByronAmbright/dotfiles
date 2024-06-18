@@ -14,6 +14,8 @@ set show-all-if-unmodified on
 # Possible completions get different colors depending on file type
 set colored-stats on
 
+set visible-stats On
+
 set show-all-if-ambiguous on
 
 set completion-ignore-case on
@@ -22,3 +24,7 @@ set completion-ignore-case on
 "\e[A":history-search-backward
 ## arrow down
 "\e[B":history-search-forward
+
+"\e\e[D": backward-word
+"\e\e[C": forward-word
+Tab: complete

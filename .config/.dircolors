@@ -40,12 +40,12 @@
 BLK                   38;5;68             # core
 CAPABILITY            38;5;17             # core
 CHR                   38;5;113;1          # core
-DIR                   38;5;30             # core
+DIR                   38;5;45             # core
 DOOR                  38;5;127            # core
 EXEC                  38;5;208;1          # core
 FIFO                  38;5;126            # core
 FILE                  0                   # core
-LINK                  target              # core
+LINK                  38;5;218;01         # core
 MULTIHARDLINK         38;5;222;1          # core
 NORMAL                0                   # core
 ORPHAN                48;5;196;38;5;232;1 # core
@@ -66,7 +66,6 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3 # core
 *INSTALL              38;5;220;1          # Documentation
 *COPYRIGHT            38;5;220;1          # Documentation
 *AUTHORS              38;5;220;1          # Documentation
-*HISTORY              38;5;220;1          # Documentation
 *CONTRIBUTORS         38;5;220;1          # Documentation
 *CONTRIBUTING         38;5;220;1          # Documentation
 *CONTRIBUTING.md      38;5;220;1          # Documentation
@@ -559,7 +558,6 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3 # core
 .mount                38;5;45             # systemd
 .automount            38;5;45             # systemd
 .target               38;5;45             # systemd
-.path                 38;5;45             # systemd
 .timer                38;5;45             # systemd
 .snapshot             38;5;45             # systemd
 .lnk                  38;5;39             # windows symlink

@@ -8,11 +8,14 @@ case $- in
 esac
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=100000
+HISTFILESIZE=200000
+SAVEHIST=1000000
 
 # Timestamps for history
 export HISTTIMEFORMAT="%m/%d/%Y %H:%M:%S"
+
+HISTCONTROL=ignorespace
 
 # Check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -28,7 +31,7 @@ export VISUAL='vim'
 export EDITOR='vim'
 export FCEDIT='vim'
 
-#Used to prevent prompt from being overridden in certain scripts
+# Used to prevent prompt from being overridden in certain scripts
 export PRESERVE_PROMPT=true
 
 # Show verbose prompt, reduce tabs, handle escape chars, case insensitive
@@ -84,6 +87,12 @@ else
 fi
 unset color_prompt
 
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# save history right away instead of at terminal close
+PROMPT_COMMAND="history -a;$PROMPT_COMMAND"
+
 # Enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     if [[ -r $HOME/.config/.dircolors ]]; then
@@ -92,7 +101,7 @@ if [ -x /usr/bin/dircolors ]; then
         eval "$(dircolors -b)"
 	fi
   
-    alias ls='ls --color=auto'
+    alias ls='ls --group-directories-first --color=auto'
     alias dir='dir --color=auto'
     alias vdir='vdir --color=auto'
 
@@ -100,6 +109,12 @@ if [ -x /usr/bin/dircolors ]; then
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
 fi
+
+# alias(es)
+alias la="ls -a"
+alias ll="ls -l"
+alias lla="ls -la"
+alias glog='git log --decorate=full --oneline --graph'
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
