@@ -7,7 +7,7 @@ function download_file_if_it_does_not_exist_already() {
 
   if [ ! -f $SOURCE_FILE_PATH_TO_CHECK ]; then
     echo "${SOURCE_FILE_PATH_TO_CHECK} was not found! Downloading dependency to ${TARGET_FILE_PATH}"
-    wget -O $TARGET_FILE_PATH $DOWNLOAD_URL
+    sudo wget -O $TARGET_FILE_PATH $DOWNLOAD_URL
   else
     echo "${SOURCE_FILE_PATH_TO_CHECK} was found! No download need."
   fi
@@ -37,7 +37,7 @@ function create_symlink_if_necessary() {
 
     if [ -e "$SOURCE_FILE_PATH" ] ; then
         echo "Creating a symlink now."
-        ln -s "$SOURCE_FILE_PATH" "$TARGET_FILE_PATH"
+        sudo ln -s "$SOURCE_FILE_PATH" "$TARGET_FILE_PATH"
     else
         echo "File ${SOURCE_FILE_NAME} not found. Skipping symlink creation"
     fi
@@ -71,11 +71,20 @@ function symlink_or_symlink_as_alt_name_as_necessary() {
 function remove_symlinks_of_source_file() {
     SOURCE_FILE_PATH="$1"
 
-    for FILE_FOUND in $(find -L $HOME -samefile $SOURCE_FILE_PATH)
+    if [ $# -ge 2 ]; then
+	    SEARCH_PATH=$2
+    else
+        # Use $HOME as the default search location if a search path isnt provided
+	    SEARCH_PATH=$HOME
+    fi
+
+    echo "Checking to remove symlinks of $SOURCE_FILE_PATH at search path of $SEARCH_PATH"
+    for FILE_FOUND in $(find -L $SEARCH_PATH -samefile $SOURCE_FILE_PATH)
     do
+        echo "Found $FILE_FOUND in $SEARCH_PATH that has the same file link as $SOURCE_FILE_PATH"
         if [ "$(readlink "$FILE_FOUND")" -ef "$SOURCE_FILE_PATH" ] ; then
             echo "Removing symlink of $SOURCE_FILE_PATH found at $FILE_FOUND"
-            rm $FILE_FOUND
+            sudo rm $FILE_FOUND
         fi
     done
 }

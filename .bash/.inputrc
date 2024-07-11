@@ -1,0 +1,74 @@
+# .inputrc
+
+$include /etc/inputrc
+
+# Do not bell on tab-completion
+set bell-style none
+
+# Allow unicode input/output
+set input-meta on
+set output-meta on
+set convert-meta off
+
+# Add a slash to symlinked and regular directories at the first tab press
+set mark-directories on
+set mark-symlinked-directories on
+
+# Complete unambiguously on first tab, then show completions
+set show-all-if-unmodified on
+
+# Possible completions get different colors depending on file type
+set colored-stats on
+
+# Show extra file information when completing, like `ls -F` does
+set visible-stats on
+
+# Be more intelligent when autocompleting by also looking at the text after the cursor.
+set skip-completed-text on
+
+# Show all possible matches immediately, without having to hit `Tab` twice:
+set show-all-if-ambiguous on
+
+# Make Tab autocompletion case-insensitive (cd ~/dow<Tab> => cd ~/Downloads/)
+set completion-ignore-case on
+
+
+# Keyboard Controls
+
+# <TAB> autocompletion
+Tab: complete
+
+# <Shift>+<Tab> Flip through autocompletion matches with 
+"\e[Z": menu-complete
+
+# <UP ARROW>
+"\e[A": history-search-backward
+
+# <DOWN ARROW>
+"\e[B": history-search-forward
+
+# <ALT>+<LEFT ARROW>
+"\e\e[D": backward-word
+
+# <CTRL>+<LEFT ARROW>
+"\e[1;5D": backward-word
+
+# <ALT>+<RIGHT ARROW>
+"\e\e[C": forward-word
+
+# <CTRL>+<RIGHT ARROW>
+"\e[1;5C": forward-word
+
+# <CTRL>+<Z>
+"\C-z":		undo
+
+# <CTRL>+<BACKSPACE>
+"\C-h": backward-kill-word
+
+# <CTRL>+<DELETE>
+"\e[3;5~": kill-word
+
+# <SHIFT>+<DELETE>
+"\e[3;2~": kill-whole-line
+
+

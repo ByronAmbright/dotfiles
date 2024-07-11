@@ -34,3 +34,6 @@ Sources for this repo were taken and modifed from the following sources:
 * https://github.com/bewuethr/dotfiles
 * https://github.com/niketpathak/devpreferences
 * https://digitalfortress.tech/tutorial/setting-up-git-prompt-step-by-step/
+* https://github.com/zacanger/dotfiles/
+* https://github.com/sharfah/dotfiles
+* https://github.com/sapegin/dotfiles
