@@ -1,0 +1,87 @@
+#################################################################################
+# ~/.ripgreprc
+# =============================================================================
+# Configures default options for ripgrep line-oriented search tool.
+#
+# Environment variable `RIPGREP_CONFIG_PATH` must point to this file.
+# See https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md
+#################################################################################
+
+
+###########################
+# BEGIN SIMPLE ARGUMENTS
+###########################
+
+# Don't let ripgrep vomit really long lines to my terminal, and show a preview.
+--max-columns=500
+--max-columns-preview
+
+# Search hidden files / directories (e.g. dotfiles) by default
+--hidden
+
+# Make search case insensitive, unless an uppercase letter is used.
+# --smart-case
+
+# When searching for a pattern, ignore case difference
+--ignore-case
+
+# Show the lines surrounding a match.
+--context=3
+
+# Current these are added by alias (rgwsl and rgremote respectively) for convenience but kept here for reference
+# --hyperlink-format=vscode://file//{wslprefix}{path}:{line}:{column}
+# --hyperlink-format=vscode://vscode-remote/ssh-remote+wncuser@byronambrightjr-work:2222/{path}:{line}:{column}
+
+###########################
+# END SIMPLE ARGUMENTS
+###########################
+
+###########################
+# BEGIN COLOR ARGUMENTS
+###########################
+
+# Set the colors.
+--colors=line:fg:yellow 
+--colors=line:style:bold
+--colors=match:bg:yellow
+--colors=match:fg:black 
+--colors=match:style:nobold 
+--colors=path:fg:green 
+--colors=path:style:bold 
+
+
+###########################
+# END COLOR ARGUMENTS
+###########################
+
+
+###########################
+# BEGIN GLOB EXCLUSION ARGS
+###########################
+
+# Using glob patterns to include/exclude files or folders
+--glob=!.git/*
+--glob=!node_modules/*
+
+###########################
+# END GLOB EXCLUSION ARGS
+###########################
+
+###########################
+# BEGIN TYPE GROUPS
+###########################
+
+
+###########################
+# END TYPE GROUPS
+###########################
+
+
+###########################
+# BEGIN TYPE ALIASES
+###########################
+
+
+###########################
+# END TYPE ALIASES
+###########################

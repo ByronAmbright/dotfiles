@@ -60,7 +60,7 @@ Tab: complete
 "\e[1;5C": forward-word
 
 # <CTRL>+<Z>
-"\C-z":		undo
+"\C-z": undo
 
 # <CTRL>+<BACKSPACE>
 "\C-h": backward-kill-word
