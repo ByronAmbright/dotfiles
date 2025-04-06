@@ -37,3 +37,4 @@ Sources for this repo were taken and modifed from the following sources:
 * https://github.com/zacanger/dotfiles/
 * https://github.com/sharfah/dotfiles
 * https://github.com/sapegin/dotfiles
+* https://github.com/mgedmin/dotfiles

@@ -1,0 +1,48 @@
+#!/bin/bash
+########################################################################################################################
+# Global Exports                                                                                                       #
+########################################################################################################################
+
+##########################################################################################
+# Bash                                                                                   #
+##########################################################################################
+if [ "$(ps -p $$ -ocomm=)" = "bash" ]; then
+    # History settings.
+
+    export HISTTIMEFORMAT="%m/%d/%Y %H:%M:%S" # Timestamps for history
+    export HISTCONTROL=ignoreboth  # no duplicate entries
+
+    # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+    export HISTSIZE=1000000                   # big big history
+    export HISTFILESIZE=1000000               # big big history
+    export SAVEHIST=1000000                   # big big history
+
+    # Save and reload the history after each command finishes in another bash session.
+    export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
+fi
+
+############################################################
+# Locale                                                   #
+############################################################
+export LANG="en_US.UTF-8"
+export LANGUAGE="en_US.UTF-8"
+
+############################################################
+# Editors                                                  #
+############################################################
+export VISUAL='vim'
+export EDITOR='vim'
+export FCEDIT='vim'
+
+############################################################
+# Pagers                                                   #
+############################################################
+export PAGER="less"
+# Show verbose prompt, reduce tabs, handle escape chars, case insensitive
+# search, exit if output fits on a single screen
+export LESS='--LONG-PROMPT --tabs=4 --RAW-CONTROL-CHARS --ignore-case --quit-if-one-screen'
+
+############################################################
+# Ripgrep                                                   #
+############################################################
+export RIPGREP_CONFIG_PATH="$HOME/.config/.ripgreprc"

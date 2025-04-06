@@ -1,3 +1,8 @@
+#!/bin/bash
+########################################################################################################################
+# Bash Prompt                                                                                                          #
+########################################################################################################################
+
 # if .git-prompt.sh exists, set options and execute it
 if ! shopt -oq posix; then
     GIT_PS1_SHOWDIRTYSTATE=true
@@ -29,7 +34,7 @@ else
 fi
 
 # Number of trailing directory components to retain when expanding \w in PS1.
-PROMPT_DIRTRIM=3
+PROMPT_DIRTRIM=2
 
 # store colors
 BLUE="\[\033[01;34m\]"
@@ -39,7 +44,7 @@ WHITE="\[\033[00m\]"
 GRAY='\[\033[1;30m\]'
 
 function color_my_prompt {
-    local __date="$GRAY[\D{$HISTTIMEFORMAT}] "
+    # local __date="$GRAY[\D{$HISTTIMEFORMAT}] "
     local __user_and_host="$GREEN\u@\h:"
     local __cur_location="${BLUE}\w"
     local __git_branch_color="$RED"
@@ -48,7 +53,7 @@ function color_my_prompt {
     local __user_input_color="$WHITE"
 
     # Build the PS1 (Prompt String)
-    PS1="$__date$__user_and_host $__cur_location$__git_branch_color$__git_branch$__prompt_tail$__user_input_color "
+    PS1="$__user_and_host $__cur_location$__git_branch_color$__git_branch$__prompt_tail$__user_input_color "
 }
 
 # Set custom prompt if present

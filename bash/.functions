@@ -1,0 +1,305 @@
+#!/bin/bash -eu
+########################################################################################################################
+# Functions                                                                                                            #
+########################################################################################################################
+
+##########################################################################################
+# Download Related Functions                                                             #
+##########################################################################################
+
+function download_file_if_it_does_not_exist_already() {
+  local source_file_path_to_check="$1"
+  local target_file_path="$2"
+  local download_url="$3"
+
+  if [ ! -f $source_file_path_to_check ]; then
+    echo "${source_file_path_to_check} was not found! Downloading dependency to ${target_file_path}"
+    sudo wget -O $target_file_path $download_url
+  else
+    echo "${source_file_path_to_check} was found! No download need."
+  fi
+}
+
+##########################################################################################
+# Symlink Related Functions                                                              #
+##########################################################################################
+
+function create_symlink_if_necessary() {
+    local source_file_path="$1"
+    local target_file_path="$2"
+
+    source_file_name=$(basename "$source_file_path")
+    echo "Now setting up symlink for $source_file_path"
+
+    if [ -L "$target_file_path" ]; then
+        if [ "$(readlink "$target_file_path")" -ef "$source_file_path" ] ; then
+           echo "Symlink already exists and points to the correct target."
+           return 0
+        fi
+
+        echo "Symlink exists, but points to an incorrect location, will remove and recreate"
+        rm "$target_file_path"
+    fi
+
+    if [ -e "$target_file_path" ] ; then
+        echo "File already exists but is not a symlink. Doing nothing"
+        return 0
+    fi
+
+    if [ -e "$source_file_path" ] ; then
+        echo "Creating a symlink now."
+        sudo ln -s "$source_file_path" "$target_file_path"
+    else
+        echo "File ${source_file_name} not found. Skipping symlink creation"
+    fi
+
+    return 0
+}
+
+function symlink_or_symlink_as_alt_name_as_necessary() {
+    local source_file_path="$1"
+    local target_folder="$2"
+    
+    source_file_name=$(basename "$source_file_path")
+    target_file_path="$target_folder/$source_file_name"
+
+    echo "Figuring out symlink details to symlink $source_file_path into $target_folder"
+
+    if [ -e "$target_file_path" ] ; then
+        target_file_name="${source_file_name:1}"
+        target_file_name=".personal_${target_file_name}"
+        renamed_file_path="$target_folder/$target_file_name"
+
+        echo "File already exists but is not a symlink. Will symlink as ${target_file_name}"
+
+        create_symlink_if_necessary $source_file_path $renamed_file_path
+        return 0
+    fi
+
+  create_symlink_if_necessary $source_file_path $target_file_path
+  return 0
+}
+
+function remove_symlinks_of_source_file() {
+    echo ""
+
+    local source_file_path="$1"
+    # Use $HOME as the default search location if a search path isnt provided
+    local search_path="${2:-$HOME}"
+
+    if [ ! -f $source_file_path ]; then
+      echo "source_file_path: '${source_file_path}' does not exist. Skipping!"
+      return 0
+    fi
+
+    if [ ! -d $search_path ]; then
+      echo "search_path '${search_path}' directory does not exist. Skipping!"
+      return 0
+    fi
+
+    echo "Checking to remove symlinks of $source_file_path at search path of $search_path"
+
+    for file_found in $(find -L $search_path -maxdepth 1 -samefile $source_file_path)
+    do
+        echo "Found $file_found in $search_path that has the same file link as $source_file_path"
+        if [ "$(readlink "$file_found")" -ef "$source_file_path" ] ; then
+            echo "Removing symlink of $source_file_path found at $file_found"
+            sudo rm $file_found
+        fi
+    done
+}
+
+##########################################################################################
+# Network Related Functions                                                              #
+##########################################################################################
+
+function check_ip_reachable() {
+  local ip="$1"
+
+  # Check if IP is reachable
+  if ping -c 1 "$ip" > /dev/null 2>&1; then
+    echo "IP $ip is reachable"
+    return 0
+  else
+    echo "IP $ip is not reachable"
+    return 1
+  fi
+}
+
+function in_SSH_session() {
+  if [[ -n "$SSH_CONNECTION" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+##########################################################################################
+# Git Related Functions                                                                 #
+##########################################################################################
+
+function remove_indention_on_empty_lines() {
+  # Get the list of files with changes
+  files=$(git diff --name-only)
+
+  # Loop through each file
+  while read -r file; do
+    # Use sed to remove indentation on empty lines
+    sed -i 's/^[[:space:]]*$//' "$file"
+  done <<< "$files"
+}
+
+##########################################################################################
+# File Related Functions                                                                 #
+##########################################################################################
+
+function find_directory_with_highest_build_number() {
+  local directory_to_search="$1"
+  local build_name="$2"
+
+  cd $directory_to_search
+
+  latest_build_directory=$(find . -maxdepth 1 -name "*${build_name}[0-9]*" -type d | sed "s/.\/${build_name}//" | sort -n | tail -1)
+
+  echo $build_name$latest_build_directory
+}
+
+function get_number_of_files_in_directory() {
+  find . -maxdepth 1 -type d | while read -r dir; do printf "%s:\t" "$dir"; find "$dir" -type f | wc -l; done
+}
+
+function find_files_with_same_name() {
+  local directory_to_search="$1"
+  local exception="$2"
+
+  if [ -z ${directory_to_search} ]; then
+    echo "directory_to_search was not supplied. Skipping find!"
+    return
+  fi
+
+  if [ -z ${exception} ]; then
+    ls ${directory_to_search} | sed 's/.\{4\}$//' | sort | uniq -d
+  else
+    ls ${directory_to_search} |  awk "!/${exception}/"  | sed 's/.\{4\}$//' | sort | uniq -d
+  fi
+}
+
+function create_directory_for_all_files_sharing_name() {
+  local directory_to_search="$1"
+  local exception="$2"
+
+  uniq_file_names_array=()
+
+	while IFS= read -r line; do
+    uniq_file_names_array+=( "$line" )
+	done < <( find_files_with_same_name $directory_to_search $exception )
+
+	for index in "${!uniq_file_names_array[@]}"; do
+    unqiue_file=${uniq_file_names_array[index]}
+    echo "Creating Directory named: $unqiue_file"
+		mkdir -p "$directory_to_search/$unqiue_file"
+  done
+}
+
+function move_files_with_name_into_directory() {
+  local directory_to_search="$1"
+  local exception="$2"
+	local destination="$3"
+
+  uniq_file_names_array=()
+
+	while IFS= read -r line; do
+    uniq_file_names_array+=( "$line" )
+	done < <( find_files_with_same_name $directory_to_search $exception )
+
+	for index in "${!uniq_file_names_array[@]}"; do
+    unqiue_file=${uniq_file_names_array[index]}
+    echo "Moving files named: $unqiue_file* to $destination"
+		mv "$directory_to_search/$unqiue_file*" "$destination"
+  done
+}
+
+function create_directory_and_move_files_for_all_files_sharing_name() {
+
+	local current_dir=$(cd "`dirname "$0"`" && pwd)
+
+  local directory_to_search="$1"
+  local exception="$2"
+
+  uniq_file_names_array=()
+
+	while IFS= read -r line; do
+    uniq_file_names_array+=( "$line" )
+	done < <( find_files_with_same_name $directory_to_search $exception )
+
+	cd "${directory_to_search}"
+	for index in "${!uniq_file_names_array[@]}"; do
+    unqiue_file=${uniq_file_names_array[index]}
+    echo "Creating Directory named: $unqiue_file"
+		mkdir -p "$unqiue_file"
+		IFS=$'\n'
+		mv "${unqiue_file}"* "${unqiue_file}"
+  done
+
+	cd $current_dir
+}
+
+# find a file with a pattern in name:
+function ff() { /usr/bin/find . -type f -iname '*'$*'*' -ls ; }
+
+# find a directory with a pattern in name:
+function fd() { /usr/bin/find . -type d -iname '*'$*'*' -ls ; }
+
+# find a file with pattern $1 in name and Execute $2 on it:
+function fe() { /usr/bin/find . -type f -iname '*'${1:-}'*' -exec ${2:-file} {} \;  ; }
+
+##########################################################################################
+# OS Related Functions                                                                   #
+##########################################################################################
+
+function is_wsl() {
+  if [[ $(grep -i WSL /proc/version) ]]; then
+      echo "yes"
+  else
+      echo "no"
+  fi
+}
+
+function osname() {
+  os="$(awk -F= '$1=="NAME" {gsub(/"/, "", $2); print $2}' /etc/os-release)"
+
+  case "$os" in
+    "Ubuntu")
+      echo "Ubuntu"
+      ;;
+    "CentOS Linux" | "CentOS Stream" | "AlmaLinux" | "Rocky Linux" | "Red Hat Enterprise Linux")
+      echo "CentOS"
+      ;;
+    *)
+      echo "Unknown"
+      ;;
+  esac
+}
+
+##########################################################################################
+# Misc Functions                                                                         #
+##########################################################################################
+
+function isincontainer() {
+  if grep -q docker /proc/1/cgroup || grep -q kubepods /proc/1/cgroup; then
+    exit 0
+  else
+    exit 1
+  fi
+}
+
+# Trim leading and trailing spaces (for scripts)
+function trim() {
+  local var=$@
+  var="${var#"${var%%[![:space:]]*}"}" # remove leading whitespace characters
+  var="${var%"${var##*[![:space:]]}"}" # remove trailing whitespace characters
+  echo -n "$var"
+}
+
+
+
