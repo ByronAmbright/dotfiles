@@ -5,6 +5,11 @@
 	email = byronambrightjr@gmail.com
 [gui]
 	fontdiff = -family Menlo -size 13 -weight normal -slant roman -underline 0 -overstrike 0
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
 [log]
 	# Human readable dates, unless no pager is used
 	date = auto:human
@@ -21,3 +26,6 @@
 	diff = auto
 	status = auto
 	ui = true
+
+[includeIf "hasconfig:remote.*.url:git@prime.rd-services.aws.ptc.com:**/**"]
+	path = ~/.config/git/work.inc.gitconfig

@@ -42,3 +42,7 @@ Thumbs.db
 ################
 .vscode
 *.iml
+
+# Secret files #
+################
+commit-examples.md

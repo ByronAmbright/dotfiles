@@ -1,0 +1,65 @@
+[dates]
+date = { fg = "magenta" }
+time = { fg = "blue" }
+zone = { fg = "red" }
+separator = { faint = true }
+
+[[keywords]]
+words = ['null', 'true', 'false']
+style = { fg = "red", italic = true }
+
+[[keywords]]
+words = ['GET']
+style = { fg = "black", bg = "green" }
+
+[urls]
+http = { fg = "red", faint = true }
+https = { fg = "green", faint = true }
+host = { fg = "blue", faint = true }
+path = { fg = "blue" }
+query_params_key = { fg = "magenta" }
+query_params_value = { fg = "cyan" }
+symbols = { fg = "red" }
+
+[numbers]
+style = { fg = "cyan" }
+
+[ip_addresses]
+number = { fg = "blue", italic = true }
+letter = { fg = "magenta", italic = true }
+separator = { fg = "red" }
+
+[quotes]
+style = { fg = "yellow" }
+token = '"'
+
+[paths]
+segment = { fg = "green", italic = true }
+separator = { fg = "yellow" }
+
+[uuids]
+number = { fg = "magenta", italic = true }
+letter = { fg = "magenta", italic = true }
+separator = { fg = "red" }
+
+[pointers]
+number = { fg = "magenta", italic = true }
+letter = { fg = "magenta", italic = true }
+separator = { fg = "red" }
+
+[key_value_pairs]
+key = { faint = true }
+separator = { fg = "white" }
+
+[processes]
+name = { fg = "green" }
+separator = { fg = "red" }
+id = { fg = "yellow" }
+
+[json]
+key = { fg = "yellow" }
+quote_token = { fg = "yellow", faint = true }
+curly_bracket = { faint = true }
+square_bracket = { faint = true }
+comma = { faint = true }
+colon = { faint = true }

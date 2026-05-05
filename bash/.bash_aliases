@@ -1,10 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 ########################################################################################################################
 # Aliases                                                                                                              #
 ########################################################################################################################
 
 dotfiles_to_load=()
-dotfiles_to_load+=("$HOME/.functions")
+dotfiles_to_load+=("$HOME/bin/network.sh")
+dotfiles_to_load+=("$HOME/bin/os.sh")
 
 # Load our dotfiles.
 for file in "${dotfiles_to_load[@]}"; do
@@ -44,15 +46,6 @@ alias lla="ls -la"
 ############################################################
 alias glog='git log --decorate=full --oneline --graph'
 
-
-############################################################
-# VS CODE                                                  #
-############################################################
-
-# if ! in_SSH_session; then
-#     alias code="/mnt/c/Program\ Files/Microsoft\ VS\ Code/bin/code "
-# fi
-
 ############################################################
 # Xterm                                                    #
 ############################################################
@@ -64,24 +57,37 @@ alias pycharm='xterm -e pycharm &'
 # Ripgrep                                                  #
 ############################################################
 
-
 rg_hyperlink_format=
 if ! in_SSH_session; then
-    rg_hyperlink_format="vscode://file//{wslprefix}{path}:{line}:{column}"
-elif [[ "$(is_wsl)" == "yes" ]]; then
-    rg_hyperlink_format="vscode://vscode-remote/ssh-remote+wncuser@byronambrightjr-work:2222/{path}:{line}:{column}"
+    if [[ "$(is_wsl)" == "yes" ]]; then
+        rg_hyperlink_format="vscode://file//{wslprefix}{path}:{line}:{column}"
+    else
+        rg_hyperlink_format="vscode"
+    fi
 else
-    rg_hyperlink_format="vscode"
+    if [[ "$(is_wsl)" == "yes" ]]; then
+        rg_hyperlink_format="vscode://vscode-remote/ssh-remote+wncuser@amibright-work-windows:2222{path}:{line}:{column}"
+    fi
 fi
 
 alias rg="rg --hyperlink-format=$rg_hyperlink_format"
-alias rrg="reset && rg"
 
 unset rg_hyperlink_format
 
+#########################################
+# Kubernetes                            #
+#########################################
+alias kc='kubectl'
 
 ############################################################
 # Misc                                                     #
 ############################################################
 alias pip=pip3
 alias p="ps aux | grep "
+
+# alias compress='ouch compress'
+# alias decompress='ouch decompress'
+
+if command -v gsed >/dev/null 2>&1; then
+    alias sed=gsed
+fi

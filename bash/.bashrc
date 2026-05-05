@@ -14,34 +14,36 @@ esac
 # Shopt commands                                                                         #
 ##########################################################################################
 
-# Check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
-shopt -s checkwinsize
+if [ "$(ps -p $$ -ocomm=)" = "bash" ]; then
+    # Check the window size after each command and, if necessary,
+    # update the values of LINES and COLUMNS.
+    shopt -s checkwinsize
 
-# Enable ** glob pattern
-shopt -s globstar
+    # Enable ** glob pattern
+    shopt -s globstar
 
-# Prevent Ctrl-D (EOF) from exiting shell
-set -o ignoreeof
+    # Prevent Ctrl-D (EOF) from exiting shell
+    set -o ignoreeof
 
-# workaround a bug where otherwise you get '\' prepended to any '$'.
-shopt -s direxpand
+    # workaround a bug where otherwise you get '\' prepended to any '$'.
+    shopt -s direxpand
 
-# Autocorrect typos in path names when using `cd`.
-shopt -s cdspell
+    # Autocorrect typos in path names when using `cd`.
+    shopt -s cdspell
 
-# Case-insensitive globbing (used in pathname expansion).
-shopt -s nocaseglob
+    # Case-insensitive globbing (used in pathname expansion).
+    shopt -s nocaseglob
 
-# Bash attempts to save all lines of a multiple-line command in the same history entry.
-# This allows easy re-editing of multi-line commands.
-shopt -s cmdhist
+    # Bash attempts to save all lines of a multiple-line command in the same history entry.
+    # This allows easy re-editing of multi-line commands.
+    shopt -s cmdhist
 
-# append to the history file, don't overwrite it
-shopt -s histappend
+    # append to the history file, don't overwrite it
+    shopt -s histappend
 
-# enable strings with !
-set -o histexpand
+    # enable strings with !
+    set -o histexpand
+fi
 
 ##########################################################################################
 # Terminal                                                                               #
@@ -55,12 +57,6 @@ if [ -x /usr/bin/dircolors ]; then
 	fi
 fi
 
-
-############################################################
-# XRESOURCES                                               #
-############################################################
-xrdb -I$HOME ~/.Xresources
-
 ##########################################################################################
 # Completions                                                                            #
 ##########################################################################################
@@ -68,35 +64,39 @@ xrdb -I$HOME ~/.Xresources
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
-if ! shopt -oq posix; then
-    if [ -f /usr/share/bash-completion/bash_completion ]; then
-      . /usr/share/bash-completion/bash_completion
-    elif [ -f /etc/bash_completion ]; then
-      . /etc/bash_completion
+if [ "$(ps -p $$ -ocomm=)" = "bash" ]; then
+    if ! shopt -oq posix; then
+        if [ -f /usr/share/bash-completion/bash_completion ]; then
+        . /usr/share/bash-completion/bash_completion
+        elif [ -f /etc/bash_completion ]; then
+        . /etc/bash_completion
+        fi
+    fi
+
+    # enable git completion features
+    if ! shopt -oq posix; then
+        if [ -f /usr/local/share/git-core/contrib/completion/git-completion.bash ]; then
+            . /usr/local/share/git-core/contrib/completion/git-completion.bash
+        elif [ -f ~/.config/git/.git-completion.bash ]; then
+            # This will only exist if you needed to downloaded it
+            . ~/.config/git/.git-completion.bash
+        fi
     fi
 fi
 
-# enable git completion features
-if ! shopt -oq posix; then
-    if [ -f /usr/local/share/git-core/contrib/completion/git-completion.bash ]; then
-        . /usr/local/share/git-core/contrib/completion/git-completion.bash
-    elif [ -f ~/.config/git/.git-completion.bash ]; then
-        # This will only exist if you needed to downloaded it
-        . ~/.config/git/.git-completion.bash
-    fi
-fi
-
+# Add tab completion for SSH hostnames based on ~/.ssh/config, ignoring wildcards
+[ -e "$HOME/.ssh/config" ] && complete -o "default" -o "nospace" -W "$(grep "^Host" ~/.ssh/config | grep -v "[?*]" | cut -d " " -f2- | tr ' ' '\n')" scp sftp ssh;
 
 ##########################################################################################
 # Load dotfiles                                                                          #
 ##########################################################################################
 dotfiles_to_load=()
-dotfiles_to_load+=("$HOME/.bashrc_secret")
-dotfiles_to_load+=("$HOME/.path_secret")
+dotfiles_to_load+=("$HOME/.bashrc.secret")
+dotfiles_to_load+=("$HOME/.bash_path")
 dotfiles_to_load+=("$HOME/.bash_prompt")
 dotfiles_to_load+=("$HOME/.bash_aliases")
-dotfiles_to_load+=("$HOME/.exports")
-dotfiles_to_load+=("$HOME/.functions")
+dotfiles_to_load+=("$HOME/.bash_exports")
+dotfiles_to_load+=("$HOME/.bash_library")
 
 # Load our dotfiles.
 for file in "${dotfiles_to_load[@]}"; do
@@ -106,6 +106,14 @@ for file in "${dotfiles_to_load[@]}"; do
 done
 unset file
 
+############################################################
+# XRESOURCES                                               #
+############################################################
+
+if in_SSH_session; then
+    xrdb -I$HOME ~/.Xresources
+fi
+
 ##########################################################################################
 # Programs                                                                               #
 ##########################################################################################
@@ -113,16 +121,20 @@ unset file
 ############################################################
 # NVM                                                      #
 ############################################################
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-nvm install v18 >/dev/null 2>/dev/null || true # This version is specifically needed by some dependencies
+
+if [[ "$(is_wsl)" == "yes" ]]; then
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+    nvm use 22.15.1
+fi
 
 ############################################################
 # virtualenvwrapper                                        #
 ############################################################
+
 export WORKON_HOME=~/python_venvs
-source /usr/local/bin/virtualenvwrapper.sh
+[ -s "/usr/local/bin/virtualenvwrapper.sh" ] && source /usr/local/bin/virtualenvwrapper.sh
 
 ############################################################
 # VS CODE                                                  #
@@ -130,3 +142,7 @@ source /usr/local/bin/virtualenvwrapper.sh
 if [[ "$(is_wsl)" == "yes" ]]; then
     export DONT_PROMPT_WSL_INSTALL=1
 fi
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/BAMBRIGHT/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)

@@ -1,0 +1,23 @@
+#!/bin/bash
+set -euo pipefail
+########################################################################################################################
+# Bring in bash functions and scripts                                                                                  #
+########################################################################################################################
+
+echo -e "Loading in bash functions and scripts"
+
+HOME_BIN_DIRECTORY="$HOME/bin"
+
+function_files_to_load=()
+function_files_to_load+=("$HOME_BIN_DIRECTORY/file_system.sh")
+function_files_to_load+=("$HOME_BIN_DIRECTORY/misc.sh")
+function_files_to_load+=("$HOME_BIN_DIRECTORY/network.sh")
+function_files_to_load+=("$HOME_BIN_DIRECTORY/os.sh")
+
+# Load the dotfiles.
+for file in "${function_files_to_load[@]}"; do
+    if [[ -f ${file} ]]; then
+        source "$file"
+    fi
+done
+unset file
